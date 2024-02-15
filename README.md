@@ -21,11 +21,7 @@ import { LoggerModule, LoggerService } from '@iamnnort/nestjs-logger';
     LoggerModule,
   ],
 })
-class AppModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(LoggerMiddleware).forRoutes('*');
-  }
-}
+class AppModule {}
 
 const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
