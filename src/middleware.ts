@@ -5,15 +5,15 @@ import { LoggerService } from './service';
 
 @Injectable()
 export class LoggerMiddleware implements NestMiddleware {
-  constructor(private loggerService: LoggerService) {
-    this.loggerService.setContext(LoggerContexts.SYSTEM);
-  }
-
   use(request: Request, response: Response, next: NextFunction) {
-    this.loggerService.logRequest(request as any);
+    const loggerService = new LoggerService();
+
+    loggerService.setContext(LoggerContexts.SYSTEM);
+
+    loggerService.logRequest(request as any);
 
     response.on('finish', () => {
-      this.loggerService.logResponse(response as any);
+      loggerService.logResponse(response as any);
     });
 
     return next();
