@@ -11,7 +11,25 @@ yarn install @iamnnort/nestjs-logger
 ## Usage
 
 ```javascript
-import { q } from "@iamnnort/request";
+import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { LoggerModule, LoggerService } from '@iamnnort/nestjs-logger';
+
+@Module({
+  imports: [
+    LoggerModule,
+  ],
+})
+class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(LoggerMiddleware).forRoutes('*');
+  }
+}
+
+const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
+app.useLogger(new LoggerService());
 ```
 
 ## License
