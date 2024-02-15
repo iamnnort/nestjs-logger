@@ -1,43 +1,18 @@
 ## Info
 
-Request handler for Node.js - Fast - Interactive - Simple
+Logger module for NestJS - Simple - Informative - Pretty
 
 ## Installation
 
 ```bash
-yarn install @iamnnort/request
+yarn install @iamnnort/nestjs-logger
 ```
 
 ## Usage
 
 ```javascript
-import { request, HttpMethods } from "@iamnnort/request";
-
-const req = request({
-  baseUrl: "...",
-});
-
-const data = await req({
-  method: HttpMethods.GET,
-  url: "...",
-});
+import { q } from "@iamnnort/request";
 ```
-
-## Parameters
-
-| Parameter          | Description                                                                |
-| ------------------ | -------------------------------------------------------------------------- |
-| `baseUrl`          | Main part of the server URL that will be used for the request              |
-| `url`              | Server URL that will be used for the request                               |
-| `urlParts`         | Additional parts of URL that will be used for the request                  |
-| `method`           | Request method to be used when making the request                          |
-| `params`           | URL parameters to be sent with the request                                 |
-| `data`             | Data to be sent as the request body                                        |
-| `headers`          | Custom headers to be sent                                                  |
-| `serializer`       | Config that allows you to customize serializing                            |
-| `serializer.array` | Array element separator (`"indices"`, `"brackets"`, `"repeat"`, `"comma"`) |
-| `logger`           | Enable a logger                                                            |
-| `debug`            | Enable a debug mode                                                        |
 
 ## License
 

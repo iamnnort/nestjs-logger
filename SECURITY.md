@@ -4,8 +4,8 @@
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 1.6.x   | :white_check_mark: |
+| 1.1.x   | :white_check_mark: |
 
 ## Reporting a Vulnerability
 
-For issues related to `@iamnnort/request` security please email the module maintainers. Their email addresses are available via `npm owner ls @iamnnort/request`.
+For issues related to `@iamnnort/nestjs-logger` security please email the module maintainers. Their email addresses are available via `npm owner ls @iamnnort/nestjs-logger`.
