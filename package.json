@@ -1,6 +1,6 @@
 {
   "name": "@iamnnort/nestjs-logger",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "Logger module for NestJS - Simple - Informative - Pretty",
   "keywords": [
     "logger"
@@ -30,7 +30,8 @@
   },
   "homepage": "https://github.com/iamnnort/nestjs-logger#readme",
   "dependencies": {
-    "@nestjs/common": "^10.3.3"
+    "@nestjs/common": "^10.3.3",
+    "qs": "^6.11.2"
   },
   "devDependencies": {
     "@tsconfig/node16": "^16.1.1",
