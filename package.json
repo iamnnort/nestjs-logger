@@ -1,0 +1,53 @@
+{
+  "name": "@iamnnort/nestjs-logger",
+  "version": "1.0.1",
+  "description": "Logger module for NestJS - Simple - Informative - Pretty",
+  "keywords": [
+    "logger"
+  ],
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "format": "prettier --write \"src/**/*.{ts,json}\"",
+    "lint": "eslint --fix \"src/**/*.{ts,json}\"",
+    "unit": "jest",
+    "test": "yarn lint && yarn unit",
+    "prepare": "husky install"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iamnnort/nestjs-logger.git"
+  },
+  "author": "Nort Red",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/iamnnort/nestjs-logger/issues"
+  },
+  "homepage": "https://github.com/iamnnort/nestjs-logger#readme",
+  "dependencies": {
+    "@nestjs/common": "^10.3.3"
+  },
+  "devDependencies": {
+    "@tsconfig/node16": "^16.1.1",
+    "@types/axios": "^0.14.0",
+    "@types/express": "^4.17.21",
+    "@types/jest": "^29.5.6",
+    "@typescript-eslint/eslint-plugin": "^6.11.0",
+    "@typescript-eslint/parser": "^6.11.0",
+    "eslint": "^8.53.0",
+    "eslint-config-prettier": "^9.0.0",
+    "husky": "^8.0.3",
+    "jest": "^29.7.0",
+    "json-autotranslate": "^1.12.4",
+    "lint-staged": "14.0.1",
+    "prettier": "^3.1.0",
+    "ts-jest": "^29.1.1",
+    "tsup": "^7.2.0",
+    "typescript": "^5.2.2"
+  }
+}
