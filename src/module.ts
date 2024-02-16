@@ -1,6 +1,6 @@
 import { Global, MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { LoggerService } from './service';
-import { LoggerMiddleware } from '.';
+import { LoggerMiddleware } from './middleware';
 
 @Global()
 @Module({

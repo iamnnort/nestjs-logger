@@ -1,8 +1,8 @@
 import { ConsoleLogger, Injectable } from '@nestjs/common';
-import { LoggerContexts } from './types';
 import { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import { Request, Response } from 'express';
 import { MessageBuilder } from './message/builder';
+import { LoggerContexts } from './types';
 
 @Injectable()
 export class LoggerService extends ConsoleLogger {
