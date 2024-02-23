@@ -1,10 +1,12 @@
-import { ConsoleLogger, Injectable } from '@nestjs/common';
+import { ConsoleLogger, Injectable, Scope } from '@nestjs/common';
 import { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import { LoggerContexts } from './types';
 import { Request, Response } from 'express';
 import { MessageBuilder } from './message/builder';
 
-@Injectable()
+@Injectable({
+  scope: Scope.TRANSIENT,
+})
 export class LoggerService extends ConsoleLogger {
   setContext(context?: string) {
     super.setContext(context || LoggerContexts.SYSTEM);
