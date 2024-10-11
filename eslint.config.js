@@ -13,6 +13,7 @@ module.exports = tslint.config(
     ...commonConfig,
   })),
   {
+    ...commonConfig,
     languageOptions: {
       globals: {
         ...globals.node,

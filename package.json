@@ -1,6 +1,6 @@
 {
   "name": "@iamnnort/nestjs-logger",
-  "version": "1.1.13",
+  "version": "1.2.0",
   "description": "Logger module for NestJS - Simple - Informative - Pretty",
   "keywords": [
     "logger"
@@ -11,10 +11,13 @@
   "files": [
     "dist"
   ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "scripts": {
     "start": "ts-node ./example",
     "build": "tsup",
-    "format": "prettier --write \"src/**/*.{ts,json}\"",
+    "format": "prettier --write '**/*.{ts,js,json}'",
     "lint": "eslint --fix",
     "test": "yarn lint",
     "prepare": "husky"
@@ -40,7 +43,6 @@
     "@nestjs/platform-express": "^10.4.4",
     "@swc/core": "^1.7.35",
     "@tsconfig/node18": "^18.2.4",
-    "@types/express": "^5.0.0",
     "@typescript-eslint/parser": "^8.8.1",
     "eslint": "^9.12.0",
     "eslint-config-prettier": "^9.1.0",
