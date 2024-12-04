@@ -13,7 +13,7 @@ export class LoggerService extends ConsoleLogger {
   }
 
   log(message: string, context?: string) {
-    const ctx = context || this.context || '';
+    const ctx = context?.replace(/^_/, '') || this.context || '';
 
     const ctxBlacklist: string[] = [
       LoggerContexts.INSTANCE_LOADER,
