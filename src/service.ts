@@ -8,8 +8,8 @@ import { MessageBuilder } from './message/builder';
   scope: Scope.TRANSIENT,
 })
 export class LoggerService extends ConsoleLogger {
-  setContext(context?: string) {
-    super.setContext(context || LoggerContexts.SYSTEM);
+  constructor(context?: string) {
+    super(context || LoggerContexts.SYSTEM);
   }
 
   log(message: string, context?: string) {
