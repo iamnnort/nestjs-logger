@@ -1,6 +1,6 @@
 import { ConsoleLogger, Inject, Injectable, Scope } from '@nestjs/common';
 import { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
-import { LoggerConfig, LoggerContexts } from './types';
+import { type LoggerConfig, LoggerContexts } from './types';
 import { Request, Response } from 'express';
 import { MessageBuilder } from './message/builder';
 import { MODULE_OPTIONS_TOKEN } from './module-definition';

@@ -1,3 +1,10 @@
+export type LoggerConfig = {
+  context?: string;
+  serializer?: {
+    array?: 'indices' | 'brackets' | 'repeat' | 'comma';
+  };
+};
+
 export enum LoggerContexts {
   SYSTEM = 'System',
   INSTANCE_LOADER = 'InstanceLoader',
@@ -6,10 +13,3 @@ export enum LoggerContexts {
   NEST_FACTORY = 'NestFactory',
   NEST_APPLICATION = 'NestApplication',
 }
-
-export type LoggerConfig = {
-  context?: string;
-  serializer?: {
-    array?: 'indices' | 'brackets' | 'repeat' | 'comma';
-  };
-};
