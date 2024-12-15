@@ -1,15 +1,18 @@
-import { ConsoleLogger, Injectable, Scope } from '@nestjs/common';
+import { ConsoleLogger, Inject, Injectable, Scope } from '@nestjs/common';
 import { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
-import { LoggerContexts } from './types';
+import { LoggerConfig, LoggerContexts } from './types';
 import { Request, Response } from 'express';
 import { MessageBuilder } from './message/builder';
+import { MODULE_OPTIONS_TOKEN } from './module-definition';
 
 @Injectable({
   scope: Scope.TRANSIENT,
 })
 export class LoggerService extends ConsoleLogger {
-  constructor(context?: string) {
-    super(context || LoggerContexts.SYSTEM);
+  constructor(@Inject(MODULE_OPTIONS_TOKEN) private config: LoggerConfig = {}) {
+    const ctx = config.context || LoggerContexts.SYSTEM;
+
+    super(ctx);
   }
 
   log(message: string, context?: string) {
@@ -40,7 +43,7 @@ export class LoggerService extends ConsoleLogger {
   }
 
   logRequest(request: InternalAxiosRequestConfig & Request) {
-    const loggerMessageBuilder = new MessageBuilder();
+    const loggerMessageBuilder = new MessageBuilder(this.config);
 
     const message = loggerMessageBuilder
       .setRequest(request)
@@ -54,7 +57,7 @@ export class LoggerService extends ConsoleLogger {
   }
 
   logResponse(response: AxiosResponse & Response) {
-    const loggerMessageBuilder = new MessageBuilder();
+    const loggerMessageBuilder = new MessageBuilder(this.config);
 
     const message = loggerMessageBuilder
       .setResponse(response)
@@ -70,7 +73,7 @@ export class LoggerService extends ConsoleLogger {
   }
 
   logRequestError(error: AxiosError) {
-    const loggerMessageBuilder = new MessageBuilder();
+    const loggerMessageBuilder = new MessageBuilder(this.config);
 
     const message = loggerMessageBuilder
       .setError(error)

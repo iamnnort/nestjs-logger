@@ -6,3 +6,10 @@ export enum LoggerContexts {
   NEST_FACTORY = 'NestFactory',
   NEST_APPLICATION = 'NestApplication',
 }
+
+export type LoggerConfig = {
+  context?: string;
+  serializer?: {
+    array?: 'indices' | 'brackets' | 'repeat' | 'comma';
+  };
+};

@@ -1,17 +1,16 @@
 import { stringify } from 'qs';
 import { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import { Response, Request } from 'express';
+import { LoggerConfig } from '@src/types';
 
 export class MessageBuilder {
-  private printQueue: string[];
+  private printQueue: string[] = [];
 
   private request!: InternalAxiosRequestConfig & Request;
   private response!: AxiosResponse & Response;
   private error!: AxiosError;
 
-  constructor() {
-    this.printQueue = [];
-  }
+  constructor(private config: LoggerConfig = {}) {}
 
   setRequest(request: InternalAxiosRequestConfig & Request) {
     this.request = request;
@@ -50,7 +49,16 @@ export class MessageBuilder {
     if (url) {
       if (params) {
         delete params['0'];
-        this.printQueue.push([url, stringify(params)].filter((_) => _).join('?'));
+        this.printQueue.push(
+          [
+            url,
+            stringify(params, {
+              arrayFormat: this.config.serializer?.array || 'brackets',
+            }),
+          ]
+            .filter((_) => _)
+            .join('?'),
+        );
       } else {
         this.printQueue.push(url);
       }
