@@ -54,6 +54,7 @@ export class MessageBuilder {
             url,
             stringify(params, {
               arrayFormat: this.config.serializer?.array || 'brackets',
+              skipNulls: true,
             }),
           ]
             .filter((_) => _)
