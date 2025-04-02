@@ -48,23 +48,24 @@ export class MessageBuilder {
 
     if (url) {
       if (params) {
+        const formattedParams = { ...params };
         const systemKeys = ['0', 'path'];
         const forbiddenKeys = ['password', ...(this.config.forbiddenKeys || [])];
 
-        Object.keys(params).forEach((paramKey) => {
+        Object.keys(formattedParams).forEach((paramKey) => {
           if (forbiddenKeys.includes(paramKey)) {
-            params[paramKey] = '******';
+            formattedParams[paramKey] = '******';
           }
 
           if (systemKeys.includes(paramKey)) {
-            delete params[paramKey];
+            delete formattedParams[paramKey];
           }
         });
 
         this.printQueue.push(
           [
             url,
-            stringify(params, {
+            stringify(formattedParams, {
               arrayFormat: this.config.serializer?.array || 'brackets',
               skipNulls: true,
             }),
@@ -110,15 +111,16 @@ export class MessageBuilder {
       }
 
       if (Object.keys(data).length) {
+        const formattedData = { ...data };
         const forbiddenKeys = ['password', ...(this.config.forbiddenKeys || [])];
 
-        Object.keys(data).forEach((dataKey) => {
+        Object.keys(formattedData).forEach((dataKey) => {
           if (forbiddenKeys.includes(dataKey)) {
-            data[dataKey] = '******';
+            formattedData[dataKey] = '******';
           }
         });
 
-        this.printQueue.push(JSON.stringify(data));
+        this.printQueue.push(JSON.stringify(formattedData));
 
         return this;
       }
@@ -138,15 +140,16 @@ export class MessageBuilder {
       }
 
       if (Object.keys(data).length) {
+        const formattedData = { ...data };
         const forbiddenKeys = ['password', ...(this.config.forbiddenKeys || [])];
 
-        Object.keys(data).forEach((dataKey) => {
+        Object.keys(formattedData).forEach((dataKey) => {
           if (forbiddenKeys.includes(dataKey)) {
-            data[dataKey] = '******';
+            formattedData[dataKey] = '******';
           }
         });
 
-        this.printQueue.push(JSON.stringify(data));
+        this.printQueue.push(JSON.stringify(formattedData));
 
         return this;
       }
