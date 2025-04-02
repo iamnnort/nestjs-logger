@@ -48,7 +48,19 @@ export class MessageBuilder {
 
     if (url) {
       if (params) {
-        delete params['0'];
+        const systemKeys = ['0', 'path'];
+        const forbiddenKeys = ['password'];
+
+        Object.keys(params).forEach((paramKey) => {
+          if (forbiddenKeys.includes(paramKey)) {
+            params[paramKey] = '******';
+          }
+
+          if (systemKeys.includes(paramKey)) {
+            delete params[paramKey];
+          }
+        });
+
         this.printQueue.push(
           [
             url,
@@ -98,6 +110,14 @@ export class MessageBuilder {
       }
 
       if (Object.keys(data).length) {
+        const forbiddenKeys = ['password'];
+
+        Object.keys(data).forEach((dataKey) => {
+          if (forbiddenKeys.includes(dataKey)) {
+            data[dataKey] = '******';
+          }
+        });
+
         this.printQueue.push(JSON.stringify(data));
 
         return this;
