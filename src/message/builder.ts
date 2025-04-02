@@ -49,7 +49,7 @@ export class MessageBuilder {
     if (url) {
       if (params) {
         const systemKeys = ['0', 'path'];
-        const forbiddenKeys = ['password'];
+        const forbiddenKeys = ['password', ...(this.config.forbiddenKeys || [])];
 
         Object.keys(params).forEach((paramKey) => {
           if (forbiddenKeys.includes(paramKey)) {
@@ -110,7 +110,7 @@ export class MessageBuilder {
       }
 
       if (Object.keys(data).length) {
-        const forbiddenKeys = ['password'];
+        const forbiddenKeys = ['password', ...(this.config.forbiddenKeys || [])];
 
         Object.keys(data).forEach((dataKey) => {
           if (forbiddenKeys.includes(dataKey)) {
@@ -138,6 +138,14 @@ export class MessageBuilder {
       }
 
       if (Object.keys(data).length) {
+        const forbiddenKeys = ['password', ...(this.config.forbiddenKeys || [])];
+
+        Object.keys(data).forEach((dataKey) => {
+          if (forbiddenKeys.includes(dataKey)) {
+            data[dataKey] = '******';
+          }
+        });
+
         this.printQueue.push(JSON.stringify(data));
 
         return this;

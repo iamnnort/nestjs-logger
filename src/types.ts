@@ -3,6 +3,7 @@ export type LoggerConfig = {
   serializer?: {
     array?: 'indices' | 'brackets' | 'repeat' | 'comma';
   };
+  forbiddenKeys?: string[];
 };
 
 export enum LoggerContexts {
