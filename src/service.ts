@@ -4,15 +4,29 @@ import { type LoggerConfig, LoggerContexts } from './types';
 import { Request, Response } from 'express';
 import { MessageBuilder } from './message/builder';
 import { MODULE_OPTIONS_TOKEN } from './module-definition';
+import { merge } from 'lodash';
 
 @Injectable({
   scope: Scope.TRANSIENT,
 })
 export class LoggerService extends ConsoleLogger {
-  constructor(@Inject(MODULE_OPTIONS_TOKEN) private config: LoggerConfig = {}) {
-    const ctx = config.context || LoggerContexts.SYSTEM;
+  private config: LoggerConfig;
 
-    super(ctx);
+  constructor(@Inject(MODULE_OPTIONS_TOKEN) customConfig: LoggerConfig = {}) {
+    const defaultConfig = {
+      context: LoggerContexts.SYSTEM,
+      forbiddenKeys: ['password'],
+      logResponse: true,
+      serializer: {
+        array: 'brackets',
+      },
+    };
+
+    const config = merge({}, defaultConfig, customConfig);
+
+    super(config.context);
+
+    this.config = config;
   }
 
   log(message: string, context?: string) {
@@ -59,15 +73,19 @@ export class LoggerService extends ConsoleLogger {
   logResponse(response: AxiosResponse & Response) {
     const loggerMessageBuilder = new MessageBuilder(this.config);
 
-    const message = loggerMessageBuilder
+    const loggerMesage = loggerMessageBuilder
       .setResponse(response)
       .makeType('Response')
       .makeMethod()
       .makeUrl()
       .makeRequestData()
-      .makeStatus()
-      .makeResponseData()
-      .build();
+      .makeStatus();
+
+    if (this.config.logResponse) {
+      loggerMesage.makeResponseData();
+    }
+
+    const message = loggerMesage.build();
 
     return this.log(message);
   }

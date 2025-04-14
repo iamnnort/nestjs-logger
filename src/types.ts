@@ -1,9 +1,10 @@
 export type LoggerConfig = {
   context?: string;
-  serializer?: {
-    array?: 'indices' | 'brackets' | 'repeat' | 'comma';
-  };
   forbiddenKeys?: string[];
+  logResponse?: boolean;
+  serializer?: {
+    array: 'indices' | 'brackets' | 'repeat' | 'comma';
+  };
 };
 
 export enum LoggerContexts {

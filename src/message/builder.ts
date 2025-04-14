@@ -50,7 +50,7 @@ export class MessageBuilder {
       if (params) {
         const formattedParams = { ...params };
         const systemKeys = ['0', 'path'];
-        const forbiddenKeys = ['password', ...(this.config.forbiddenKeys || [])];
+        const forbiddenKeys = this.config.forbiddenKeys || [];
 
         Object.keys(formattedParams).forEach((paramKey) => {
           if (forbiddenKeys.includes(paramKey)) {
@@ -66,7 +66,7 @@ export class MessageBuilder {
           [
             url,
             stringify(formattedParams, {
-              arrayFormat: this.config.serializer?.array || 'brackets',
+              arrayFormat: this.config.serializer?.array,
               skipNulls: true,
             }),
           ]
@@ -112,7 +112,7 @@ export class MessageBuilder {
 
       if (Object.keys(data).length) {
         const formattedData = { ...data };
-        const forbiddenKeys = ['password', ...(this.config.forbiddenKeys || [])];
+        const forbiddenKeys = this.config.forbiddenKeys || [];
 
         Object.keys(formattedData).forEach((dataKey) => {
           if (forbiddenKeys.includes(dataKey)) {
@@ -141,7 +141,7 @@ export class MessageBuilder {
 
       if (Object.keys(data).length) {
         const formattedData = { ...data };
-        const forbiddenKeys = ['password', ...(this.config.forbiddenKeys || [])];
+        const forbiddenKeys = this.config.forbiddenKeys || [];
 
         Object.keys(formattedData).forEach((dataKey) => {
           if (forbiddenKeys.includes(dataKey)) {
