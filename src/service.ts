@@ -56,6 +56,14 @@ export class LoggerService extends ConsoleLogger {
     return console.log(`[${ctx}] ${message}`);
   }
 
+  error(error: unknown, context?: string) {
+    const ctx = context?.replace(/^_/, '') || this.context || '';
+
+    console.log(`[${ctx}] [Error] Internal server error`);
+
+    console.error(error);
+  }
+
   logRequest(request: InternalAxiosRequestConfig & Request) {
     const loggerMessageBuilder = new MessageBuilder(this.config);
 
