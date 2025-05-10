@@ -1,6 +1,6 @@
 {
   "name": "@iamnnort/nestjs-logger",
-  "version": "1.4.2",
+  "version": "1.5.0",
   "description": "Logger module for NestJS - Simple - Informative - Pretty",
   "keywords": [
     "logger"
