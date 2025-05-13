@@ -7,5 +7,4 @@ export default defineConfig({
   minify: true,
   splitting: true,
   sourcemap: true,
-  external: ['@nestjs/microservices', '@nestjs/websockets'],
 });
