@@ -11,11 +11,9 @@ export class LoggerExceptionFilter implements ExceptionFilter {
 
     if (exception instanceof HttpException) {
       const statusCode = exception.getStatus();
+      const errorResponse = exception.getResponse();
 
-      return response.status(statusCode).json({
-        statusCode,
-        message: exception.message,
-      });
+      return response.status(statusCode).json(errorResponse);
     }
 
     this.loggerService.error(exception);
