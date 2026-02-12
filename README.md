@@ -1,15 +1,6 @@
 # @iamnnort/nestjs-logger
 
-Logger module for NestJS based on [nestjs-pino](https://github.com/iamolegga/nestjs-pino) — structured request logging, clean output, CloudWatch-friendly.
-
-## Features
-
-- Automatic HTTP request/response logging via pino-http
-- Clean single-line request logs: `INFO: [Http] GET /v1/visits 200 (3ms)`
-- Context-aware logging: `INFO: [AppController] User logged in`
-- Global exception filter with proper error responses
-- No colors, no timestamps, no PID — optimized for AWS CloudWatch
-- Configurable log level
+Logger module for NestJS - Simple - Informative - Pretty
 
 ## Installation
 
@@ -28,7 +19,11 @@ import { Module } from '@nestjs/common';
 import { LoggerModule } from '@iamnnort/nestjs-logger';
 
 @Module({
-  imports: [LoggerModule.forRoot()],
+  imports: [
+    LoggerModule.register({
+      level: 'info',
+    }),
+  ],
 })
 export class AppModule {}
 ```
@@ -56,16 +51,33 @@ async function bootstrap() {
 bootstrap();
 ```
 
-### Log level
+### Async configuration
 
-Set the minimum level with `LoggerModule.forRoot({ level: 'debug' })`. Levels (most to least verbose): `trace`, `debug`, `info`, `warn`, `error`, `fatal`. Default is `info`.
+Use `registerAsync` when the config depends on other providers (e.g. `ConfigService`):
 
 ```ts
+import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { LoggerModule } from '@iamnnort/nestjs-logger';
+
 @Module({
-  imports: [LoggerModule.forRoot({ level: 'debug' })],
+  imports: [
+    ConfigModule.forRoot(),
+    LoggerModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        level: config.get('LOG_LEVEL', 'info'),
+      }),
+    }),
+  ],
 })
 export class AppModule {}
 ```
+
+### Log level
+
+Levels (most to least verbose): `trace`, `debug`, `info`, `warn`, `error`, `fatal`.
 
 ### Using the logger in your code
 
@@ -100,10 +112,10 @@ export class AppController {
 The module registers a global exception filter automatically. It returns proper error responses for both HTTP exceptions and unhandled errors:
 
 ```json
-// BadRequestException('Example error')
-{ "message": "Example error", "error": "Bad Request", "statusCode": 400 }
+// BadRequestException('Http error.')
+{ "message": "Http error.", "error": "Bad Request", "statusCode": 400 }
 
-// throw new Error('Something went wrong.')
+// throw new Error('Runtime error.')
 { "message": "Something went wrong.", "error": "Internal Server Error", "statusCode": 500 }
 ```
 
@@ -116,6 +128,7 @@ INFO: [Http] GET / 200 (3ms)
 INFO: [Http] POST / 200 (1ms)
 INFO: [Http] POST /http-error 400 (2ms)
 ERROR: [AppController] User error.
+INFO: [Http] POST /user-error 200 (1ms)
 ```
 
 ## Example

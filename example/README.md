@@ -21,13 +21,13 @@ yarn start
 
 ## Routes
 
-| Method | Path            | Description               |
-|--------|-----------------|---------------------------|
-| GET    | /               | Success response          |
-| POST   | /               | Echo request body         |
-| POST   | /http-error     | Throws BadRequestException |
-| POST   | /runtime-error  | Throws unhandled Error    |
-| POST   | /user-error     | Logs error via LoggerService |
+| Method | Path            | Description                    |
+|--------|-----------------|--------------------------------|
+| GET    | /               | Success response               |
+| POST   | /               | Echo request body              |
+| POST   | /http-error     | Throws BadRequestException     |
+| POST   | /runtime-error  | Throws unhandled Error         |
+| POST   | /user-error     | Logs error via LoggerService   |
 
 ## Try it
 

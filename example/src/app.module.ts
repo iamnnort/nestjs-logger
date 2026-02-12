@@ -4,12 +4,8 @@ import { AppController } from './app.controller';
 
 @Module({
   imports: [
-    LoggerModule.registerAsync({
-      useFactory: () => {
-        return {
-          level: 'info',
-        };
-      },
+    LoggerModule.register({
+      level: 'info',
     }),
   ],
   controllers: [AppController],
