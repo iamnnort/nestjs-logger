@@ -1,6 +1,5 @@
 import { ConfigurableModuleBuilder } from '@nestjs/common';
 import { LoggerConfig } from './types';
 
-export const { ConfigurableModuleClass, MODULE_OPTIONS_TOKEN } = new ConfigurableModuleBuilder<LoggerConfig>()
-  .setClassMethodName('forRoot')
-  .build();
+export const { ConfigurableModuleClass, MODULE_OPTIONS_TOKEN, OPTIONS_TYPE, ASYNC_OPTIONS_TYPE } =
+  new ConfigurableModuleBuilder<LoggerConfig>().build();

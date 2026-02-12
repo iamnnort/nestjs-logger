@@ -1,115 +1,58 @@
-import { Inject, Injectable, type LoggerService as NestLoggerService, Scope } from '@nestjs/common';
+import { ConsoleLogger, Inject, Injectable, Scope } from '@nestjs/common';
 import { Logger as PinoNestLogger } from 'nestjs-pino';
+import { LoggerContexts } from './types';
 
 @Injectable({
   scope: Scope.TRANSIENT,
 })
-export class LoggerService implements NestLoggerService {
-  private context?: string;
+export class LoggerService extends ConsoleLogger {
+  @Inject(PinoNestLogger)
+  private readonly logger: PinoNestLogger;
 
-  constructor(@Inject(PinoNestLogger) private readonly logger: PinoNestLogger) {}
+  private print(fnName: string, message: any, context?: string) {
+    const ctx = context?.replace(/^_/, '') || this.context || '';
 
-  setContext(context: string) {
-    this.context = context;
-  }
+    const ctxBlacklist: string[] = [
+      LoggerContexts.INSTANCE_LOADER,
+      LoggerContexts.ROUTES_RESOLVER,
+      LoggerContexts.ROUTER_EXPLORER,
+    ];
 
-  private getContext(...optionalParams: unknown[]) {
-    // NestJS error: error(message, stack, context) — context at index 1
-    if (typeof optionalParams[1] === 'string') {
-      return optionalParams[1];
+    if (ctxBlacklist.includes(ctx)) {
+      return;
     }
 
-    // NestJS other: log(message, context) — context at index 0
-    if (typeof optionalParams[0] === 'string') {
-      return optionalParams[0];
-    }
-
-    // Manual call: no context in params, use this.context
-    return this.context;
-  }
-
-  private format(message: unknown, context?: string) {
-    const ignoredContexts = ['InstanceLoader', 'RoutesResolver', 'RouterExplorer'];
-
-    if (context && ignoredContexts.includes(context)) {
-      return null;
-    }
-
-    let msg = typeof message === 'string' ? message : String(message);
-
-    const messageMap = {
-      NestFactory: {
-        'Starting Nest application...': 'Application is starting...',
-      },
-      NestApplication: {
-        'Nest application successfully started': 'Application started.',
-      },
+    const ctxMessageMap: Record<string, string> = {
+      [LoggerContexts.NEST_FACTORY]: 'Application is starting...',
+      [LoggerContexts.NEST_APPLICATION]: 'Application started.',
     };
 
-    if (context && messageMap[context]) {
-      msg = messageMap[context][msg] ?? msg;
-    }
+    const msg = ctxMessageMap[ctx] || message || '';
 
-    return context ? `[${context}] ${msg}` : msg;
+    return this.logger[fnName](`[${ctx}] ${msg}`);
   }
 
-  log(message: unknown, ...optionalParams: unknown[]) {
-    const msg = this.format(message, this.getContext(...optionalParams));
-
-    if (msg === null) {
-      return;
-    }
-
-    this.logger.log(msg);
+  log(message: any, context?: string) {
+    this.print('log', message, context);
   }
 
-  error(message: unknown, ...optionalParams: unknown[]) {
-    const msg = this.format(message, this.getContext(...optionalParams));
-
-    if (msg === null) {
-      return;
-    }
-
-    this.logger.error(msg);
+  error(message: any, context?: string) {
+    this.print('error', message, context);
   }
 
-  warn(message: unknown, ...optionalParams: unknown[]) {
-    const msg = this.format(message, this.getContext(...optionalParams));
-
-    if (msg === null) {
-      return;
-    }
-
-    this.logger.warn(msg);
+  warn(message: any, context?: string) {
+    this.print('warn', message, context);
   }
 
-  debug(message: unknown, ...optionalParams: unknown[]) {
-    const msg = this.format(message, this.getContext(...optionalParams));
-
-    if (msg === null) {
-      return;
-    }
-
-    this.logger.debug(msg);
+  debug(message: any, context?: string) {
+    this.print('debug', message, context);
   }
 
-  verbose(message: unknown, ...optionalParams: unknown[]) {
-    const msg = this.format(message, this.getContext(...optionalParams));
-
-    if (msg === null) {
-      return;
-    }
-
-    this.logger.verbose(msg);
+  verbose(message: any, context?: string) {
+    this.print('verbose', message, context);
   }
 
-  fatal(message: unknown, ...optionalParams: unknown[]) {
-    const msg = this.format(message, this.getContext(...optionalParams));
-
-    if (msg === null) {
-      return;
-    }
-
-    this.logger.fatal(msg);
+  fatal(message: any, context?: string) {
+    this.print('fatal', message, context);
   }
 }

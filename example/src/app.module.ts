@@ -3,7 +3,11 @@ import { LoggerModule } from '@iamnnort/nestjs-logger';
 import { AppController } from './app.controller';
 
 @Module({
-  imports: [LoggerModule.forRoot()],
+  imports: [
+    LoggerModule.register({
+      level: 'info',
+    }),
+  ],
   controllers: [AppController],
 })
 export class AppModule {}
