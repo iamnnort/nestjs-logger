@@ -2,59 +2,61 @@
   "name": "@iamnnort/nestjs-logger",
   "version": "1.5.6",
   "description": "Logger module for NestJS - Simple - Informative - Pretty",
-  "keywords": [
-    "logger"
-  ],
-  "main": "./dist/index.js",
-  "module": "./dist/index.mjs",
-  "types": "./dist/index.d.ts",
-  "files": [
-    "dist"
-  ],
-  "engines": {
-    "node": ">=20.0.0"
-  },
-  "scripts": {
-    "build": "tsup",
-    "format": "prettier --write '**/*.{ts,js,json}'",
-    "lint": "eslint --fix",
-    "test": "yarn lint",
-    "prepare": "husky"
-  },
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/iamnnort/nestjs-logger.git"
   },
-  "author": "Nikita Pavets",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/iamnnort/nestjs-logger/issues"
-  },
+  "bugs": "https://github.com/iamnnort/nestjs-logger/issues",
   "homepage": "https://github.com/iamnnort/nestjs-logger#readme",
+  "keywords": [
+    "logger",
+    "nestjs",
+    "logging"
+  ],
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "build": "tsup",
+    "deploy": "npm publish",
+    "lint": "eslint --fix",
+    "format": "prettier --write . --ignore-path .gitignore",
+    "test": "yarn lint",
+    "prepare": "husky"
+  },
   "dependencies": {
     "axios": "^1.9.0",
     "lodash": "^4.17.21",
     "qs": "^6.14.0"
   },
   "devDependencies": {
+    "@iamnnort/config": "^1.0.0",
     "@nestjs/common": "^11.1.0",
     "@nestjs/core": "^11.1.0",
-    "@swc/core": "^1.11.24",
-    "@tsconfig/node20": "^20.1.5",
+    "@nestjs/platform-express": "^11.1.0",
+    "@swc/core": "^1.15.11",
     "@types/express": "^5.0.1",
     "@types/lodash": "^4.17.16",
-    "@types/node": "^22.13.17",
-    "@typescript-eslint/parser": "^8.29.0",
-    "eslint": "^9.23.0",
-    "eslint-config-prettier": "^10.1.1",
+    "@types/node": "^25.2.3",
+    "eslint": "^9.24.0",
     "husky": "^9.1.7",
-    "lint-staged": "^15.5.0",
-    "prettier": "^3.5.3",
+    "lint-staged": "^15.5.1",
+    "prettier": "^3.8.1",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2",
     "tsup": "^8.4.0",
-    "typescript": "^5.8.2",
-    "typescript-eslint": "^8.29.0"
+    "typescript": "^5.9.3"
   },
   "peerDependencies": {
     "@nestjs/common": "^11.1.0",

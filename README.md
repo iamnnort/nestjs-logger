@@ -1,17 +1,20 @@
-## Info
+# @iamnnort/nestjs-logger
 
-Logger module for NestJS - Simple - Informative - Pretty
+Logger module for NestJS — simple, informative, pretty.
 
 ## Installation
 
 ```bash
-yarn install @iamnnort/nestjs-logger
+npm install @iamnnort/nestjs-logger
+# or
+yarn add @iamnnort/nestjs-logger
 ```
 
 ## Usage
 
-```javascript
-// app.ts
+**app.module.ts**
+
+```ts
 import { Module } from '@nestjs/common';
 import { LoggerModule } from '@iamnnort/nestjs-logger';
 
@@ -19,11 +22,14 @@ import { LoggerModule } from '@iamnnort/nestjs-logger';
   imports: [LoggerModule],
 })
 export class AppModule {}
+```
 
-// index.ts
+**main.ts**
+
+```ts
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
-import { AppModule } from './app';
+import { AppModule } from './app.module';
 import { LoggerService } from '@iamnnort/nestjs-logger';
 
 async function bootstrap() {
@@ -31,9 +37,8 @@ async function bootstrap() {
     bufferLogs: true,
   });
 
-  const loggerService = await app.resolve(LoggerService);
-
-  app.useLogger(loggerService);
+  const logger = await app.resolve(LoggerService);
+  app.useLogger(logger);
 
   await app.listen(3000);
 }
@@ -43,7 +48,7 @@ bootstrap();
 
 ## Output
 
-```bash
+```
 [System] Application is starting...
 [System] Application started.
 [System] [Request] POST /echo {"greeting":"hello"}
@@ -52,4 +57,4 @@ bootstrap();
 
 ## License
 
-This project is licensed under the MIT license. See the [LICENSE](LICENSE) file for more info.
+MIT © [Nikita Pavets](https://github.com/iamnnort)

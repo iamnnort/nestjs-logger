@@ -1,15 +1,6 @@
 {
-  "extends": "@tsconfig/node20/tsconfig.json",
+  "extends": "@iamnnort/config/tsconfig/node.json",
   "compilerOptions": {
-    "baseUrl": "./",
-    "strictPropertyInitialization": false,
-    "noFallthroughCasesInSwitch": false,
-    "resolveJsonModule": true,
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
-    "noImplicitAny": false,
-    "paths": {
-      "@src/*": ["src/*"]
-    }
+    "baseUrl": "./"
   }
 }
