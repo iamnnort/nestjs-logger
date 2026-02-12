@@ -1,39 +1,53 @@
-# Example – test the logger locally
+# Example
 
-Minimal NestJS app that uses `@iamnnort/nestjs-logger` from the parent package. The dependency uses `link:..`, so **after you change and rebuild the lib, the example picks up changes** — no need to reinstall in `example/`.
+Minimal NestJS app that uses `@iamnnort/nestjs-logger` from the parent package. The dependency uses `link:..`, so after you rebuild the lib the example picks up changes automatically.
 
 ## Run
 
-From the **repository root**:
+From the repository root:
 
 ```bash
-yarn build              # build the library
-cd example
-yarn install
-yarn build
 yarn start
 ```
 
-Or from root in one go:
+Or step by step:
 
 ```bash
-yarn build && cd example && yarn install && yarn build && yarn start
+yarn build
+cd example
+yarn install
+yarn start
 ```
 
 ## Routes
 
-| Method | Path   | Description                    |
-|--------|--------|--------------------------------|
-| GET    | /      | Hello message                  |
-| POST   | /echo  | Echo request body (see logs)  |
-| GET    | /error | Throws HTTP exception         |
+| Method | Path            | Description               |
+|--------|-----------------|---------------------------|
+| GET    | /               | Success response          |
+| POST   | /               | Echo request body         |
+| POST   | /http-error     | Throws BadRequestException |
+| POST   | /runtime-error  | Throws unhandled Error    |
+| POST   | /user-error     | Logs error via LoggerService |
 
 ## Try it
 
 ```bash
 curl http://localhost:3000
-curl -X POST http://localhost:3000/echo -H "Content-Type: application/json" -d '{"greeting":"hello"}'
-curl http://localhost:3000/error
+curl -X POST http://localhost:3000 -H "Content-Type: application/json" -d '{"foo":"bar"}'
+curl -X POST http://localhost:3000/http-error
+curl -X POST http://localhost:3000/runtime-error
+curl -X POST http://localhost:3000/user-error
 ```
 
-Check the terminal for request/response and error logging.
+## Expected output
+
+```
+INFO: [NestFactory] Application is starting...
+INFO: [NestApplication] Application started.
+INFO: [Http] GET / 200 (3ms)
+INFO: [Http] POST / 200 (1ms)
+INFO: [Http] POST /http-error 400 (2ms)
+INFO: [Http] POST /runtime-error 500 (1ms)
+ERROR: [AppController] User error.
+INFO: [Http] POST /user-error 200 (1ms)
+```

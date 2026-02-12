@@ -1,21 +1,22 @@
 # @iamnnort/nestjs-logger
 
-Logger module for NestJS using [nestjs-pino](https://github.com/iamolegga/nestjs-pino) — structured JSON logging with **automatic HTTP request/response logging**.
+Logger module for NestJS based on [nestjs-pino](https://github.com/iamolegga/nestjs-pino) — structured request logging, clean output, CloudWatch-friendly.
+
+## Features
+
+- Automatic HTTP request/response logging via pino-http
+- Clean single-line request logs: `INFO: [Http] GET /v1/visits 200 (3ms)`
+- Context-aware logging: `INFO: [AppController] User logged in`
+- Global exception filter with proper error responses
+- No colors, no timestamps, no PID — optimized for AWS CloudWatch
+- Configurable log level
 
 ## Installation
 
 ```bash
-npm install @iamnnort/nestjs-logger pino-http
+npm install @iamnnort/nestjs-logger
 # or
-yarn add @iamnnort/nestjs-logger pino-http
-```
-
-For pretty-printed logs in development:
-
-```bash
-npm install pino-pretty
-# or
-yarn add pino-pretty
+yarn add @iamnnort/nestjs-logger
 ```
 
 ## Usage
@@ -23,25 +24,11 @@ yarn add pino-pretty
 **app.module.ts**
 
 ```ts
-import { RequestMethod } from '@nestjs/common';
 import { Module } from '@nestjs/common';
 import { LoggerModule } from '@iamnnort/nestjs-logger';
 
 @Module({
-  imports: [
-    LoggerModule.forRoot({
-      pinoHttp: {
-        level: process.env.NODE_ENV !== 'production' ? 'debug' : 'info',
-        transport:
-          process.env.NODE_ENV !== 'production'
-            ? { target: 'pino-pretty', options: { colorize: true } }
-            : undefined,
-        genReqId: (req) => req.headers['x-request-id'] ?? crypto.randomUUID(),
-      },
-      forRoutes: ['*'],
-      exclude: [{ method: RequestMethod.ALL, path: 'health' }],
-    }),
-  ],
+  imports: [LoggerModule.forRoot()],
 })
 export class AppModule {}
 ```
@@ -50,66 +37,93 @@ export class AppModule {}
 
 ```ts
 import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule } from './app.module';
-import { Logger } from '@iamnnort/nestjs-logger';
+import { LoggerService } from '@iamnnort/nestjs-logger';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, { bufferLogs: true });
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    bufferLogs: true,
+  });
 
-  app.useLogger(app.get(Logger));
+  const loggerService = await app.resolve(LoggerService);
+
+  app.useLogger(loggerService);
 
   await app.listen(3000);
 }
+
 bootstrap();
 ```
 
-Every HTTP request and response is logged automatically. Use `Logger` (NestJS-style) or inject `PinoLogger` for full Pino API and request-scoped fields (e.g. `PinoLogger.assign({ userId })`).
+### Log level
 
-### Configuration options
+Set the minimum level with `LoggerModule.forRoot({ level: 'debug' })`. Levels (most to least verbose): `trace`, `debug`, `info`, `warn`, `error`, `fatal`. Default is `info`.
 
-| Option         | Description                                                                 |
-|----------------|-----------------------------------------------------------------------------|
-| `pinoHttp`     | [pino-http](https://github.com/pinojs/pino-http#api) options (level, transport, customAttributeKeys, genReqId, etc.) |
-| `forRoutes`    | Routes where the HTTP logger runs (default: `['*']`)                        |
-| `exclude`      | Routes to skip (e.g. health checks)                                         |
-| `renameContext`| Rename the `context` key in logs (e.g. `'service'`)                        |
-| `assignResponse` | Include assigned fields in response logs                                |
+```ts
+@Module({
+  imports: [LoggerModule.forRoot({ level: 'debug' })],
+})
+export class AppModule {}
+```
 
 ### Using the logger in your code
 
+Inject `LoggerService` and set the context to get `[ClassName]` prefix in all log messages:
+
 ```ts
-import { Controller } from '@nestjs/common';
-import { Logger, PinoLogger } from '@iamnnort/nestjs-logger';
+import { Controller, Get, Post } from '@nestjs/common';
+import { LoggerService } from '@iamnnort/nestjs-logger';
 
 @Controller()
 export class AppController {
-  constructor(
-    private readonly logger: Logger,       // NestJS LoggerService API
-    private readonly pino: PinoLogger,     // Full Pino API + request context
-  ) {}
+  constructor(private readonly loggerService: LoggerService) {
+    this.loggerService.setContext(AppController.name);
+  }
 
   @Get()
   get() {
-    this.logger.log('Handling GET');
-    this.pino.assign({ userId: '123' });   // Added to all logs in this request
-    return { ok: true };
+    this.loggerService.log('Handling GET request');
+    return { success: true };
+  }
+
+  @Post()
+  post() {
+    this.loggerService.error('Something failed');
+    return { success: false };
   }
 }
 ```
 
-## Example
+### Global exception filter
 
-Run the example app (build the library first):
+The module registers a global exception filter automatically. It returns proper error responses for both HTTP exceptions and unhandled errors:
 
-```bash
-yarn build && yarn --cwd example start
+```json
+// BadRequestException('Example error')
+{ "message": "Example error", "error": "Bad Request", "statusCode": 400 }
+
+// throw new Error('Something went wrong.')
+{ "message": "Something went wrong.", "error": "Internal Server Error", "statusCode": 500 }
 ```
 
-Then send requests to see request/response logs:
+## Output
+
+```
+INFO: [NestFactory] Application is starting...
+INFO: [NestApplication] Application started.
+INFO: [Http] GET / 200 (3ms)
+INFO: [Http] POST / 200 (1ms)
+INFO: [Http] POST /http-error 400 (2ms)
+ERROR: [AppController] User error.
+```
+
+## Example
+
+An example app lives in [`example/`](example/). To run it:
 
 ```bash
-curl http://localhost:3000
-curl -X POST http://localhost:3000 -H "Content-Type: application/json" -d '{"foo":"bar"}'
+yarn start
 ```
 
 ## License
