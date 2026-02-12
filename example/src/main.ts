@@ -8,8 +8,9 @@ async function bootstrap() {
     bufferLogs: true,
   });
 
-  const logger = await app.resolve(LoggerService);
-  app.useLogger(logger);
+  const loggerService = await app.resolve(LoggerService);
+
+  app.useLogger(loggerService);
 
   await app.listen(3000);
 }

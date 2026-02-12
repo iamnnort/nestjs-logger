@@ -1,116 +1,115 @@
-import { ConsoleLogger, Inject, Injectable, Scope } from '@nestjs/common';
-import { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
-import { type LoggerConfig, LoggerContexts } from './types';
-import { Request, Response } from 'express';
-import { MessageBuilder } from './message/builder';
-import { MODULE_OPTIONS_TOKEN } from './module-definition';
-import { merge } from 'lodash';
+import { Inject, Injectable, type LoggerService as NestLoggerService, Scope } from '@nestjs/common';
+import { Logger as PinoNestLogger } from 'nestjs-pino';
 
 @Injectable({
   scope: Scope.TRANSIENT,
 })
-export class LoggerService extends ConsoleLogger {
-  private config: LoggerConfig;
+export class LoggerService implements NestLoggerService {
+  private context?: string;
 
-  constructor(@Inject(MODULE_OPTIONS_TOKEN) customConfig: LoggerConfig = {}) {
-    const defaultConfig = {
-      context: LoggerContexts.SYSTEM,
-      forbiddenKeys: ['password'],
-      logResponse: true,
-      serializer: {
-        array: 'brackets',
+  constructor(@Inject(PinoNestLogger) private readonly logger: PinoNestLogger) {}
+
+  setContext(context: string) {
+    this.context = context;
+  }
+
+  private getContext(...optionalParams: unknown[]) {
+    // NestJS error: error(message, stack, context) — context at index 1
+    if (typeof optionalParams[1] === 'string') {
+      return optionalParams[1];
+    }
+
+    // NestJS other: log(message, context) — context at index 0
+    if (typeof optionalParams[0] === 'string') {
+      return optionalParams[0];
+    }
+
+    // Manual call: no context in params, use this.context
+    return this.context;
+  }
+
+  private format(message: unknown, context?: string) {
+    const ignoredContexts = ['InstanceLoader', 'RoutesResolver', 'RouterExplorer'];
+
+    if (context && ignoredContexts.includes(context)) {
+      return null;
+    }
+
+    let msg = typeof message === 'string' ? message : String(message);
+
+    const messageMap = {
+      NestFactory: {
+        'Starting Nest application...': 'Application is starting...',
+      },
+      NestApplication: {
+        'Nest application successfully started': 'Application started.',
       },
     };
 
-    const config = merge({}, defaultConfig, customConfig);
+    if (context && messageMap[context]) {
+      msg = messageMap[context][msg] ?? msg;
+    }
 
-    super(config.context);
-
-    this.config = config;
+    return context ? `[${context}] ${msg}` : msg;
   }
 
-  log(message: string, context?: string) {
-    const ctx = context?.replace(/^_/, '') || this.context || '';
+  log(message: unknown, ...optionalParams: unknown[]) {
+    const msg = this.format(message, this.getContext(...optionalParams));
 
-    const ctxBlacklist: string[] = [
-      LoggerContexts.INSTANCE_LOADER,
-      LoggerContexts.ROUTER_EXPLORER,
-      LoggerContexts.ROUTES_RESOLVER,
-    ];
-
-    if (ctxBlacklist.includes(ctx)) {
+    if (msg === null) {
       return;
     }
 
-    const ctxMessageMap: Record<string, string> = {
-      [LoggerContexts.NEST_FACTORY]: 'Application is starting...',
-      [LoggerContexts.NEST_APPLICATION]: 'Application started.',
-    };
+    this.logger.log(msg);
+  }
 
-    const ctxMessage = ctxMessageMap[ctx];
+  error(message: unknown, ...optionalParams: unknown[]) {
+    const msg = this.format(message, this.getContext(...optionalParams));
 
-    if (ctxMessage) {
-      return console.log(`[${LoggerContexts.SYSTEM}] ${ctxMessage}`);
+    if (msg === null) {
+      return;
     }
 
-    return console.log(`[${ctx}] ${message}`);
+    this.logger.error(msg);
   }
 
-  error(error: unknown, context?: string) {
-    const ctx = context?.replace(/^_/, '') || this.context || '';
+  warn(message: unknown, ...optionalParams: unknown[]) {
+    const msg = this.format(message, this.getContext(...optionalParams));
 
-    console.log(`[${ctx}] [Error] Internal server error`);
-
-    console.error(error);
-  }
-
-  logRequest(request: InternalAxiosRequestConfig & Request) {
-    const loggerMessageBuilder = new MessageBuilder(this.config);
-
-    const message = loggerMessageBuilder
-      .setRequest(request)
-      .makeType('Request')
-      .makeMethod()
-      .makeUrl()
-      .makeRequestData()
-      .build();
-
-    return this.log(message);
-  }
-
-  logResponse(response: AxiosResponse & Response) {
-    const loggerMessageBuilder = new MessageBuilder(this.config);
-
-    const loggerMesage = loggerMessageBuilder
-      .setResponse(response)
-      .makeType('Response')
-      .makeMethod()
-      .makeUrl()
-      .makeRequestData()
-      .makeStatus();
-
-    if (this.config.logResponse) {
-      loggerMesage.makeResponseData();
+    if (msg === null) {
+      return;
     }
 
-    const message = loggerMesage.build();
-
-    return this.log(message);
+    this.logger.warn(msg);
   }
 
-  logRequestError(error: AxiosError) {
-    const loggerMessageBuilder = new MessageBuilder(this.config);
+  debug(message: unknown, ...optionalParams: unknown[]) {
+    const msg = this.format(message, this.getContext(...optionalParams));
 
-    const message = loggerMessageBuilder
-      .setError(error)
-      .makeType('Error')
-      .makeMethod()
-      .makeUrl()
-      .makeRequestData()
-      .makeStatus()
-      .makeResponseData()
-      .build();
+    if (msg === null) {
+      return;
+    }
 
-    return this.log(message);
+    this.logger.debug(msg);
+  }
+
+  verbose(message: unknown, ...optionalParams: unknown[]) {
+    const msg = this.format(message, this.getContext(...optionalParams));
+
+    if (msg === null) {
+      return;
+    }
+
+    this.logger.verbose(msg);
+  }
+
+  fatal(message: unknown, ...optionalParams: unknown[]) {
+    const msg = this.format(message, this.getContext(...optionalParams));
+
+    if (msg === null) {
+      return;
+    }
+
+    this.logger.fatal(msg);
   }
 }

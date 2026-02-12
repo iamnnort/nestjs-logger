@@ -1,13 +1,21 @@
 # @iamnnort/nestjs-logger
 
-Logger module for NestJS — simple, informative, pretty.
+Logger module for NestJS using [nestjs-pino](https://github.com/iamolegga/nestjs-pino) — structured JSON logging with **automatic HTTP request/response logging**.
 
 ## Installation
 
 ```bash
-npm install @iamnnort/nestjs-logger
+npm install @iamnnort/nestjs-logger pino-http
 # or
-yarn add @iamnnort/nestjs-logger
+yarn add @iamnnort/nestjs-logger pino-http
+```
+
+For pretty-printed logs in development:
+
+```bash
+npm install pino-pretty
+# or
+yarn add pino-pretty
 ```
 
 ## Usage
@@ -15,11 +23,25 @@ yarn add @iamnnort/nestjs-logger
 **app.module.ts**
 
 ```ts
+import { RequestMethod } from '@nestjs/common';
 import { Module } from '@nestjs/common';
 import { LoggerModule } from '@iamnnort/nestjs-logger';
 
 @Module({
-  imports: [LoggerModule],
+  imports: [
+    LoggerModule.forRoot({
+      pinoHttp: {
+        level: process.env.NODE_ENV !== 'production' ? 'debug' : 'info',
+        transport:
+          process.env.NODE_ENV !== 'production'
+            ? { target: 'pino-pretty', options: { colorize: true } }
+            : undefined,
+        genReqId: (req) => req.headers['x-request-id'] ?? crypto.randomUUID(),
+      },
+      forRoutes: ['*'],
+      exclude: [{ method: RequestMethod.ALL, path: 'health' }],
+    }),
+  ],
 })
 export class AppModule {}
 ```
@@ -28,42 +50,67 @@ export class AppModule {}
 
 ```ts
 import { NestFactory } from '@nestjs/core';
-import { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule } from './app.module';
-import { LoggerService } from '@iamnnort/nestjs-logger';
+import { Logger } from '@iamnnort/nestjs-logger';
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
-    bufferLogs: true,
-  });
+  const app = await NestFactory.create(AppModule, { bufferLogs: true });
 
-  const logger = await app.resolve(LoggerService);
-  app.useLogger(logger);
+  app.useLogger(app.get(Logger));
 
   await app.listen(3000);
 }
-
 bootstrap();
 ```
 
-## Output
+Every HTTP request and response is logged automatically. Use `Logger` (NestJS-style) or inject `PinoLogger` for full Pino API and request-scoped fields (e.g. `PinoLogger.assign({ userId })`).
 
-```
-[System] Application is starting...
-[System] Application started.
-[System] [Request] POST /echo {"greeting":"hello"}
-[System] [Response] POST /echo {"greeting":"hello"} 200 OK
+### Configuration options
+
+| Option         | Description                                                                 |
+|----------------|-----------------------------------------------------------------------------|
+| `pinoHttp`     | [pino-http](https://github.com/pinojs/pino-http#api) options (level, transport, customAttributeKeys, genReqId, etc.) |
+| `forRoutes`    | Routes where the HTTP logger runs (default: `['*']`)                        |
+| `exclude`      | Routes to skip (e.g. health checks)                                         |
+| `renameContext`| Rename the `context` key in logs (e.g. `'service'`)                        |
+| `assignResponse` | Include assigned fields in response logs                                |
+
+### Using the logger in your code
+
+```ts
+import { Controller } from '@nestjs/common';
+import { Logger, PinoLogger } from '@iamnnort/nestjs-logger';
+
+@Controller()
+export class AppController {
+  constructor(
+    private readonly logger: Logger,       // NestJS LoggerService API
+    private readonly pino: PinoLogger,     // Full Pino API + request context
+  ) {}
+
+  @Get()
+  get() {
+    this.logger.log('Handling GET');
+    this.pino.assign({ userId: '123' });   // Added to all logs in this request
+    return { ok: true };
+  }
+}
 ```
 
 ## Example
 
-An example app lives in [`example/`](example/). To run it (build the library, then the example):
+Run the example app (build the library first):
 
 ```bash
-yarn example
+yarn build && yarn --cwd example start
 ```
 
-Or step by step: `yarn build` → `cd example` → `yarn install` → `yarn build` → `yarn start`. See [example/README.md](example/README.md).
+Then send requests to see request/response logs:
+
+```bash
+curl http://localhost:3000
+curl -X POST http://localhost:3000 -H "Content-Type: application/json" -d '{"foo":"bar"}'
+```
 
 ## License
 

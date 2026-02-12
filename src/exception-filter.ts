@@ -1,13 +1,11 @@
-import { ExceptionFilter, Catch, ArgumentsHost, HttpException, HttpStatus } from '@nestjs/common';
-import { LoggerService } from './service';
+import { type ArgumentsHost, Catch, type ExceptionFilter, HttpException, HttpStatus } from '@nestjs/common';
+import type { Response } from 'express';
 
 @Catch()
 export class LoggerExceptionFilter implements ExceptionFilter {
-  constructor(private loggerService: LoggerService) {}
-
   catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
-    const response = ctx.getResponse();
+    const response = ctx.getResponse<Response>();
 
     if (exception instanceof HttpException) {
       const statusCode = exception.getStatus();
@@ -16,11 +14,10 @@ export class LoggerExceptionFilter implements ExceptionFilter {
       return response.status(statusCode).json(errorResponse);
     }
 
-    this.loggerService.error(exception);
-
     response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+      message: 'Something went wrong.',
+      error: 'Internal Server Error',
       statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-      message: 'Internal server error',
     });
   }
 }
