@@ -28,6 +28,7 @@
     "node": ">=22.0.0"
   },
   "scripts": {
+    "start": "yarn build && yarn --cwd ./example start",
     "build": "tsup",
     "deploy": "npm publish",
     "lint": "eslint --fix",
@@ -44,7 +45,6 @@
     "@iamnnort/config": "^1.0.0",
     "@nestjs/common": "^11.1.0",
     "@nestjs/core": "^11.1.0",
-    "@nestjs/platform-express": "^11.1.0",
     "@swc/core": "^1.15.11",
     "@types/express": "^5.0.1",
     "@types/lodash": "^4.17.16",
