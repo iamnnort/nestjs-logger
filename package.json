@@ -1,6 +1,6 @@
 {
   "name": "@iamnnort/nestjs-logger",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "description": "Logger module for NestJS - Simple - Informative - Pretty",
   "license": "MIT",
   "repository": {
