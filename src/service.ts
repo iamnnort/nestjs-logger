@@ -1,15 +1,15 @@
 import { ConsoleLogger, Inject, Injectable, Scope } from '@nestjs/common';
-import { Logger as PinoNestLogger } from 'nestjs-pino';
+import { PinoLogger } from 'nestjs-pino';
 import { LoggerContexts } from './types';
 
 @Injectable({
   scope: Scope.TRANSIENT,
 })
 export class LoggerService extends ConsoleLogger {
-  @Inject(PinoNestLogger)
-  private readonly logger: PinoNestLogger;
+  @Inject(PinoLogger)
+  private readonly pinoLogger: PinoLogger;
 
-  private print(fnName: string, message: any, context?: string) {
+  private print(level: string, message: any, context?: string) {
     const ctx = context?.replace(/^_/, '') || this.context || '';
 
     const ctxBlacklist: string[] = [
@@ -29,11 +29,13 @@ export class LoggerService extends ConsoleLogger {
 
     const msg = ctxMessageMap[ctx] || message || '';
 
-    return this.logger[fnName](`[${ctx}] ${msg}`);
+    const logger = ctx ? this.pinoLogger.logger.child({ name: ctx }) : this.pinoLogger.logger;
+
+    logger[level](msg);
   }
 
   log(message: any, context?: string) {
-    this.print('log', message, context);
+    this.print('info', message, context);
   }
 
   error(message: any, context?: string) {
@@ -49,7 +51,7 @@ export class LoggerService extends ConsoleLogger {
   }
 
   verbose(message: any, context?: string) {
-    this.print('verbose', message, context);
+    this.print('trace', message, context);
   }
 
   fatal(message: any, context?: string) {

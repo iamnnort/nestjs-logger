@@ -1,6 +1,15 @@
 export type LoggerConfig = {
-  level: 'fatal' | 'error' | 'warn' | 'info' | 'debug' | 'trace';
+  level: LoggerLevels;
 };
+
+export enum LoggerLevels {
+  FATAL = 'fatal',
+  ERROR = 'error',
+  WARN = 'warn',
+  INFO = 'info',
+  DEBUG = 'debug',
+  TRACE = 'trace',
+}
 
 export enum LoggerContexts {
   SYSTEM = 'System',

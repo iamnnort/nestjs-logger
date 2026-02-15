@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
-import { LoggerModule } from '@iamnnort/nestjs-logger';
+import { LoggerModule, LoggerLevels } from '@iamnnort/nestjs-logger';
 import { AppController } from './app.controller';
 
 @Module({
   imports: [
     LoggerModule.register({
-      level: 'info',
+      level: LoggerLevels.INFO,
     }),
   ],
   controllers: [AppController],

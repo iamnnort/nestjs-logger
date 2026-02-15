@@ -3,7 +3,7 @@ import type { Response } from 'express';
 
 @Catch()
 export class LoggerExceptionFilter implements ExceptionFilter {
-  catch(exception: unknown, host: ArgumentsHost) {
+  catch(exception: any, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
 

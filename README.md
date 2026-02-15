@@ -16,12 +16,12 @@ yarn add @iamnnort/nestjs-logger
 
 ```ts
 import { Module } from '@nestjs/common';
-import { LoggerModule } from '@iamnnort/nestjs-logger';
+import { LoggerModule, LoggerLevels } from '@iamnnort/nestjs-logger';
 
 @Module({
   imports: [
     LoggerModule.register({
-      level: 'info',
+      level: LoggerLevels.INFO,
     }),
   ],
 })
@@ -81,7 +81,7 @@ Levels (most to least verbose): `trace`, `debug`, `info`, `warn`, `error`, `fata
 
 ### Using the logger in your code
 
-Inject `LoggerService` and set the context to get `[ClassName]` prefix in all log messages:
+Inject `LoggerService` and set the context to get a named logger:
 
 ```ts
 import { Controller, Get, Post } from '@nestjs/common';
@@ -122,13 +122,22 @@ The module registers a global exception filter automatically. It returns proper 
 ## Output
 
 ```
-INFO: [NestFactory] Application is starting...
-INFO: [NestApplication] Application started.
-INFO: [Http] GET / 200 (3ms)
-INFO: [Http] POST / 200 (1ms)
-INFO: [Http] POST /http-error 400 (2ms)
-ERROR: [AppController] User error.
-INFO: [Http] POST /user-error 200 (1ms)
+INFO (NestFactory): Application is starting...
+INFO (NestApplication): Application started.
+INFO (Http): GET / 200 OK (3ms)
+INFO (Http): POST / 201 Created (1ms)
+    request: {
+      "json": {
+        "id": 1234
+      }
+    }
+ERROR (AppController): User error.
+INFO (Http): POST /user-error 201 Created (1ms)
+ERROR (Http): POST /http-error 500 Internal Server Error
+    error: {
+      "type": "Error",
+      "message": "failed with status code 500"
+    }
 ```
 
 ## Example
