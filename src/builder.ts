@@ -3,7 +3,7 @@ import type { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 import type { Params as NestJsPinoParams } from 'nestjs-pino';
 import { OPTIONS_TYPE } from './module-definition';
 import { RequestMethod } from '@nestjs/common';
-import { HttpMessageBuilder } from '@iamnnort/config/http';
+import { HttpMessageBuilder, HttpStatuses } from '@iamnnort/config/http';
 
 function toAxiosConfig(req: IncomingMessage): AxiosRequestConfig {
   const expressReq = req as IncomingMessage & { body?: unknown };
@@ -87,6 +87,17 @@ export function makePinoParams(options: typeof OPTIONS_TYPE): NestJsPinoParams {
         const message = messageBuilder.makeMethodText().makeUrlText().makeStatusText().build();
 
         return message;
+      },
+      customLogLevel: (_, res, error) => {
+        if (error || res.statusCode >= HttpStatuses.INTERNAL_SERVER_ERROR) {
+          return 'error';
+        }
+
+        if (res.statusCode >= HttpStatuses.BAD_REQUEST) {
+          return 'warn';
+        }
+
+        return 'info';
       },
       customAttributeKeys: {
         err: 'error',
