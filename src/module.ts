@@ -1,6 +1,6 @@
 import { DynamicModule, Global, Module } from '@nestjs/common';
-import { APP_FILTER } from '@nestjs/core';
-import { LoggerModule as NestJsPinoLoggerModule } from 'nestjs-pino';
+import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
+import { LoggerErrorInterceptor, LoggerModule as NestJsPinoLoggerModule } from 'nestjs-pino';
 import { ASYNC_OPTIONS_TYPE, ConfigurableModuleClass, OPTIONS_TYPE } from './module-definition';
 import { LoggerExceptionFilter } from './exception-filter';
 import { makePinoParams } from './builder';
@@ -9,7 +9,17 @@ import type { LoggerConfig } from './types';
 
 @Global()
 @Module({
-  providers: [LoggerService, { provide: APP_FILTER, useClass: LoggerExceptionFilter }],
+  providers: [
+    LoggerService,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: LoggerErrorInterceptor,
+    },
+    {
+      provide: APP_FILTER,
+      useClass: LoggerExceptionFilter,
+    },
+  ],
   exports: [LoggerService],
 })
 export class LoggerModule extends ConfigurableModuleClass {
