@@ -37,67 +37,76 @@ function toAxiosError(req: IncomingMessage, res: ServerResponse, error: Error): 
 }
 
 export function makePinoParams(options: typeof OPTIONS_TYPE): NestJsPinoParams {
+  const isProduction = process.env.NODE_ENV === 'production';
   const formatter = new HttpMessageFormatter();
 
+  const pinoOptions = {
+    name: 'Http',
+    level: options.level,
+    timestamp: isProduction,
+    customReceivedMessage: (req) => {
+      const response = toAxiosResponse(req, {} as ServerResponse);
+
+      const messageBuilder = new HttpMessageBuilder({
+        response,
+      });
+
+      return messageBuilder.makeMethodText().makeUrlText().build();
+    },
+    customSuccessMessage: (req, res, duration) => {
+      const response = toAxiosResponse(req, res);
+
+      const messageBuilder = new HttpMessageBuilder({
+        response,
+        duration,
+      });
+
+      return messageBuilder.makeMethodText().makeUrlText().makeStatusText().makeDurationText().build();
+    },
+    customSuccessObject: (req, res) => {
+      const response = toAxiosResponse(req, res);
+
+      const messageBuilder = new HttpMessageBuilder({
+        response,
+      });
+
+      const data = {};
+
+      const requestData = messageBuilder.makeRequestDataObj();
+
+      if (Object.keys(requestData).length > 0) {
+        data['request'] = requestData;
+      }
+
+      return data;
+    },
+    customErrorMessage: (req, res, error) => {
+      const axiosError = toAxiosError(req, res, error);
+
+      const messageBuilder = new HttpMessageBuilder({
+        error: axiosError,
+      });
+
+      return messageBuilder.makeMethodText().makeUrlText().makeStatusText().build();
+    },
+    customLogLevel: (_req, res, error) => {
+      if (error || res.statusCode >= HttpStatuses.INTERNAL_SERVER_ERROR) {
+        return 'error';
+      }
+
+      if (res.statusCode >= HttpStatuses.BAD_REQUEST) {
+        return 'warn';
+      }
+
+      return 'info';
+    },
+    customAttributeKeys: {
+      err: 'error',
+    },
+  };
+
   return {
-    pinoHttp: [
-      {
-        name: 'Http',
-        level: options.level,
-        timestamp: false,
-        customSuccessMessage: (req, res, duration) => {
-          const response = toAxiosResponse(req, res);
-
-          const messageBuilder = new HttpMessageBuilder({
-            response,
-            duration,
-          });
-
-          return messageBuilder.makeMethodText().makeUrlText().makeStatusText().makeDurationText().build();
-        },
-        customSuccessObject: (req, res) => {
-          const response = toAxiosResponse(req, res);
-
-          const messageBuilder = new HttpMessageBuilder({
-            response,
-          });
-
-          const data = {};
-
-          const requestData = messageBuilder.makeRequestDataObj();
-
-          if (Object.keys(requestData).length > 0) {
-            data['request'] = requestData;
-          }
-
-          return data;
-        },
-        customErrorMessage: (req, res, error) => {
-          const axiosError = toAxiosError(req, res, error);
-
-          const messageBuilder = new HttpMessageBuilder({
-            error: axiosError,
-          });
-
-          return messageBuilder.makeMethodText().makeUrlText().makeStatusText().build();
-        },
-        customLogLevel: (_req, res, error) => {
-          if (error || res.statusCode >= HttpStatuses.INTERNAL_SERVER_ERROR) {
-            return 'error';
-          }
-
-          if (res.statusCode >= HttpStatuses.BAD_REQUEST) {
-            return 'warn';
-          }
-
-          return 'info';
-        },
-        customAttributeKeys: {
-          err: 'error',
-        },
-      },
-      formatter.makeLogStream(),
-    ],
+    pinoHttp: isProduction ? pinoOptions : [pinoOptions, formatter.makeLogStream()],
     forRoutes: [
       {
         path: '*',
