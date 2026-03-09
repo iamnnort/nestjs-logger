@@ -1,6 +1,5 @@
 export type LoggerConfig = {
   level: LoggerLevels;
-  output?: LoggerOutputs;
 };
 
 export enum LoggerLevels {
@@ -10,11 +9,6 @@ export enum LoggerLevels {
   INFO = 'info',
   DEBUG = 'debug',
   TRACE = 'trace',
-}
-
-export enum LoggerOutputs {
-  MESSAGE = 'message',
-  DATA = 'data',
 }
 
 export enum LoggerContexts {
