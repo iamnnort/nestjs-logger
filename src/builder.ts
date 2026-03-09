@@ -37,7 +37,7 @@ function toAxiosError(req: IncomingMessage, res: ServerResponse, error: Error): 
 }
 
 export function makePinoParams(options: typeof OPTIONS_TYPE): NestJsPinoParams {
-  const isProduction = process.env.NODE_ENV === 'production';
+  const isProduction = process.env.NODE_ENV === 'production' || true;
   const formatter = new HttpMessageFormatter();
 
   const pinoOptions = {
@@ -105,8 +105,16 @@ export function makePinoParams(options: typeof OPTIONS_TYPE): NestJsPinoParams {
     },
   };
 
+  const formatter22 = () => {
+    return {
+      write: (msg: string) => {
+        console.log(msg);
+      },
+    };
+  };
+
   return {
-    pinoHttp: isProduction ? pinoOptions : [pinoOptions, formatter.makeLogStream()],
+    pinoHttp: isProduction ? [pinoOptions, formatter22()] : [pinoOptions, formatter.makeLogStream()],
     forRoutes: [
       {
         path: '*',
