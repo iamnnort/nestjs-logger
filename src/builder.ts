@@ -5,6 +5,7 @@ import { OPTIONS_TYPE } from './module-definition';
 import { RequestMethod } from '@nestjs/common';
 import { HttpMessageBuilder, HttpStatuses } from '@iamnnort/config/http';
 import { HttpMessageFormatter } from '@iamnnort/config/http';
+import { LoggerOutputs } from './types';
 
 function toAxiosConfig(req: IncomingMessage): AxiosRequestConfig {
   const expressReq = req as IncomingMessage & { body?: unknown };
@@ -37,13 +38,12 @@ function toAxiosError(req: IncomingMessage, res: ServerResponse, error: Error): 
 }
 
 export function makePinoParams(options: typeof OPTIONS_TYPE): NestJsPinoParams {
-  const isProduction = process.env.NODE_ENV === 'production' || true;
   const formatter = new HttpMessageFormatter();
 
   const pinoOptions = {
     name: 'Http',
     level: options.level,
-    timestamp: isProduction,
+    timestamp: false,
     customReceivedMessage: (req) => {
       const response = toAxiosResponse(req, {} as ServerResponse);
 
@@ -105,16 +105,12 @@ export function makePinoParams(options: typeof OPTIONS_TYPE): NestJsPinoParams {
     },
   };
 
-  const formatter22 = () => {
-    return {
-      write: (msg: string) => {
-        console.log(msg);
-      },
-    };
-  };
-
   return {
-    pinoHttp: isProduction ? [pinoOptions, formatter22()] : [pinoOptions, formatter.makeLogStream()],
+    pinoHttp: [
+      pinoOptions,
+      options.output === LoggerOutputs.DATA ? formatter.makeLambdaLogStream() : formatter.makeLogStream(),
+    ],
+
     forRoutes: [
       {
         path: '*',

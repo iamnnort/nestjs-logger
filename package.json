@@ -1,6 +1,6 @@
 {
   "name": "@iamnnort/nestjs-logger",
-  "version": "2.1.9",
+  "version": "2.1.10",
   "description": "Logger module for NestJS - Simple - Informative - Pretty",
   "license": "MIT",
   "repository": {
@@ -32,7 +32,7 @@
     "prepare": "husky"
   },
   "dependencies": {
-    "@iamnnort/config": "^1.1.16",
+    "@iamnnort/config": "^1.2.1",
     "nestjs-pino": "^4.5.0",
     "pino-http": "^10.4.0"
   },
