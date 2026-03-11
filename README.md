@@ -10,6 +10,10 @@ npm install @iamnnort/nestjs-logger
 yarn add @iamnnort/nestjs-logger
 ```
 
+## Requirements
+
+- **Node.js** ≥ 24
+
 ## Usage
 
 **app.module.ts**
